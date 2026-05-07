@@ -1,0 +1,4 @@
+export const CAMPAIGN_STATUS = {
+  PENDING_REVIEW: "PENDING_REVIEW",
+  ACTIVE: "ACTIVE",
+} as const;
