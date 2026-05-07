@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { useRouter } from "next/navigation";
 import { useLoginMutation } from "@/lib/services/adminApi";
@@ -16,6 +16,16 @@ export function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [login, { data, error, isError, isLoading, isSuccess }] = useLoginMutation();
+
+  useEffect(() => {
+    const hasAccessToken = document.cookie
+      .split("; ")
+      .some((cookie) => cookie.startsWith("accessToken="));
+
+    if (hasAccessToken) {
+      router.replace("/dashboard");
+    }
+  }, [router]);
 
   const errorMessage = useMemo(() => {
     if (!isError || !error) {
