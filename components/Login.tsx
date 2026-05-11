@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { useRouter } from "next/navigation";
+import { AppLogo } from "@/components/AppLogo";
 import { useLoginMutation } from "@/lib/services/adminApi";
 
 type LoginErrorData = {
@@ -60,7 +61,8 @@ export function Login() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 px-4 py-10">
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900/80 p-7 shadow-2xl backdrop-blur">
-        <div className="mb-6 text-center">
+        <div className="mb-6 flex flex-col items-center text-center">
+          <AppLogo className="mx-auto mb-5 w-48 sm:w-56" priority />
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">Welcome Back</p>
           <h1 className="mt-2 text-3xl font-bold text-white">Sign in to your account</h1>
           <p className="mt-2 text-sm text-slate-300">Use your email and password to continue.</p>
