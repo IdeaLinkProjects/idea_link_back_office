@@ -154,6 +154,30 @@ export type VerifyKycRequest = {
   rejectionReason?: string;
 };
 
+export type AdminUser = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  fullName?: string;
+  email: string;
+  phone?: string;
+  roles: string[];
+  emailVerified: boolean;
+  phoneVerified: boolean;
+  fanVerified: boolean;
+  kycStatus: string;
+  isProfileComplete: boolean;
+  profilePictureUrl?: string;
+  isInvestor?: boolean;
+  isInnovator?: boolean;
+  active?: boolean;
+};
+
+export type UpdateUserStatusRequest = {
+  userId: number;
+  active: boolean;
+};
+
 export const adminApi = createApi({
   reducerPath: "adminApi",
   baseQuery: fetchBaseQuery({
@@ -184,6 +208,20 @@ export const adminApi = createApi({
         url: "/admin/campaigns/all",
         method: "GET",
         params: { page, size },
+      }),
+    }),
+    getUsers: builder.query<PaginatedResponse<AdminUser>, PaginationRequest>({
+      query: ({ page, size }) => ({
+        url: "/admin/users/all",
+        method: "GET",
+        params: { page, size },
+      }),
+    }),
+    updateUserStatus: builder.mutation<CampaignActionResponse, UpdateUserStatusRequest>({
+      query: ({ userId, active }) => ({
+        url: `/admin/users/${userId}/status`,
+        method: "PUT",
+        params: { active },
       }),
     }),
     getCampaignById: builder.query<CampaignDetail, number>({
@@ -243,6 +281,8 @@ export const {
   useGetDashboardStatsQuery,
   useLoginMutation,
   useGetCampaignsQuery,
+  useGetUsersQuery,
+  useUpdateUserStatusMutation,
   useGetCampaignByIdQuery,
   useApproveCampaignMutation,
   useRejectCampaignMutation,
