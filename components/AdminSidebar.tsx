@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { AppLogo } from "@/components/AppLogo";
 
 const menuItems = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
@@ -53,7 +54,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
         }`}
       >
         <div className="flex items-center justify-between px-2">
-          <p className="text-xl font-semibold tracking-tight">Task Pro.</p>
+          <AppLogo className="w-40" priority />
           <button
             type="button"
             onClick={onClose}
