@@ -178,6 +178,28 @@ export type UpdateUserStatusRequest = {
   active: boolean;
 };
 
+export type AdminInvitation = {
+  id: number;
+  email: string;
+  status: string;
+  expiresAt: string;
+  acceptedAt: string | null;
+  invitedByEmail: string;
+  createdAt: string;
+};
+
+export type SendAdminInvitationRequest = {
+  email: string;
+};
+
+export type AcceptAdminInvitationRequest = {
+  token: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  confirmPassword: string;
+};
+
 export const adminApi = createApi({
   reducerPath: "adminApi",
   baseQuery: fetchBaseQuery({
@@ -274,6 +296,33 @@ export const adminApi = createApi({
         method: "POST",
       }),
     }),
+    getAdminInvitations: builder.query<PaginatedResponse<AdminInvitation>, PaginationRequest>({
+      query: ({ page, size }) => ({
+        url: "/admin/invitations",
+        method: "GET",
+        params: { page, size },
+      }),
+    }),
+    sendAdminInvitation: builder.mutation<CampaignActionResponse, SendAdminInvitationRequest>({
+      query: (body) => ({
+        url: "/admin/invitations",
+        method: "POST",
+        body,
+      }),
+    }),
+    revokeAdminInvitation: builder.mutation<CampaignActionResponse, number>({
+      query: (id) => ({
+        url: `/admin/invitations/${id}`,
+        method: "DELETE",
+      }),
+    }),
+    acceptAdminInvitation: builder.mutation<CampaignActionResponse, AcceptAdminInvitationRequest>({
+      query: (body) => ({
+        url: "/auth/admin-invitation/accept",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -290,4 +339,8 @@ export const {
   useGetPendingKycsQuery,
   useVerifyKycMutation,
   useReleaseEscrowFundsMutation,
+  useGetAdminInvitationsQuery,
+  useSendAdminInvitationMutation,
+  useRevokeAdminInvitationMutation,
+  useAcceptAdminInvitationMutation,
 } = adminApi;

@@ -3,8 +3,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Menu } from "lucide-react";
-import { AdminSidebar } from "@/components/AdminSidebar";
+import { ArrowLeft } from "lucide-react";
+import { AdminDashboardShell } from "@/components/AdminDashboardShell";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { useGetPendingKycsQuery, useVerifyKycMutation } from "@/lib/services/adminApi";
 
@@ -17,7 +17,6 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
 export default function KycDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<"approve" | "reject" | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
 
@@ -49,20 +48,8 @@ export default function KycDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent px-3 py-4 sm:px-6 sm:py-6">
-      <main className="mx-auto w-full max-w-7xl">
-        <button
-          type="button"
-          onClick={() => setIsSidebarOpen(true)}
-          className="mb-3 inline-flex items-center gap-2 rounded-xl border border-emerald-700/60 bg-emerald-900/40 px-3 py-2 text-sm text-emerald-100 lg:hidden"
-        >
-          <Menu size={16} />
-          Menu
-        </button>
-
-        <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-
-        <section className="space-y-4 lg:ml-[17.5rem]">
+    <>
+      <AdminDashboardShell>
           <Link
             href="/dashboard/kyc"
             className="inline-flex items-center gap-2 rounded-lg border border-slate-800 bg-black/80 px-3 py-2 text-sm text-slate-200 transition hover:bg-slate-900"
@@ -169,8 +156,7 @@ export default function KycDetailPage() {
               </article>
             </>
           ) : null}
-        </section>
-      </main>
+      </AdminDashboardShell>
 
       <ConfirmModal
         isOpen={pendingAction !== null}
@@ -196,6 +182,6 @@ export default function KycDetailPage() {
         }}
         onConfirm={() => void handleConfirm()}
       />
-    </div>
+    </>
   );
 }

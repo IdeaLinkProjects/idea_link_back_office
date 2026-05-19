@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { FileBadge, Menu, UserRound } from "lucide-react";
-import { AdminSidebar } from "@/components/AdminSidebar";
+import { FileBadge, UserRound } from "lucide-react";
+import { AdminDashboardShell } from "@/components/AdminDashboardShell";
 import { useGetPendingKycsQuery } from "@/lib/services/adminApi";
 
 const dateFormat = new Intl.DateTimeFormat("en-US", {
@@ -13,24 +12,10 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
 });
 
 export default function KycPage() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { data, isLoading, isError } = useGetPendingKycsQuery();
 
   return (
-    <div className="min-h-screen bg-transparent px-3 py-4 sm:px-6 sm:py-6">
-      <main className="mx-auto w-full max-w-7xl">
-        <button
-          type="button"
-          onClick={() => setIsSidebarOpen(true)}
-          className="mb-3 inline-flex items-center gap-2 rounded-xl border border-emerald-700/60 bg-emerald-900/40 px-3 py-2 text-sm text-emerald-100 lg:hidden"
-        >
-          <Menu size={16} />
-          Menu
-        </button>
-
-        <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-
-        <section className="space-y-4 lg:ml-[17.5rem]">
+    <AdminDashboardShell>
           <article className="rounded-2xl border border-slate-800 bg-black/80 p-5 shadow-xl">
             <h1 className="text-2xl font-semibold text-slate-100">Pending KYC Verification</h1>
             <p className="mt-1 text-sm text-slate-300">
@@ -96,8 +81,6 @@ export default function KycPage() {
               ) : null}
             </>
           ) : null}
-        </section>
-      </main>
-    </div>
+    </AdminDashboardShell>
   );
 }

@@ -23,11 +23,24 @@
   --primary-foreground: #f3f4f6;
 }
 
+html,
 body {
-  background:
-    radial-gradient(900px 500px at 10% -10%, rgba(255, 255, 255, 0.08), transparent 65%),
-    radial-gradient(700px 380px at 100% 0%, rgba(148, 163, 184, 0.12), transparent 60%),
-    linear-gradient(160deg, #000000 0%, #0b0b0d 50%, #000000 100%);
+  overflow-x: hidden;
+}
+
+html {
+  background-color: #020806;
+}
+
+body {
+  background-color: #020806;
+  background-image:
+    radial-gradient(ellipse 900px 520px at 8% -12%, rgba(16, 185, 129, 0.28), transparent 62%),
+    radial-gradient(ellipse 720px 420px at 92% 8%, rgba(5, 150, 105, 0.18), transparent 58%),
+    radial-gradient(ellipse 560px 360px at 50% 100%, rgba(6, 95, 70, 0.14), transparent 55%),
+    linear-gradient(165deg, #010a06 0%, #041a12 38%, #03140e 68%, #020806 100%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   min-height: 100vh;

@@ -26,7 +26,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (isChecking) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black text-sm text-slate-300">
+      <div className="flex min-h-screen items-center justify-center text-sm text-slate-300">
         Checking authentication...
       </div>
     );

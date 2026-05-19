@@ -5,6 +5,7 @@ import {
   LogOut,
   Megaphone,
   ShieldCheck,
+  UserCog,
   Users,
   X,
 } from "lucide-react";
@@ -17,6 +18,7 @@ const menuItems = [
   { label: "Campaigns", icon: Megaphone, href: "/dashboard/campaigns" },
   { label: "KYC", icon: ShieldCheck, href: "/dashboard/kyc" },
   { label: "Users", icon: Users, href: "/dashboard/users" },
+  { label: "Admins", icon: UserCog, href: "/dashboard/admins" },
 ];
 
 type AdminSidebarProps = {

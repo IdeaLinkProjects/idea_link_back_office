@@ -1,12 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Menu } from "lucide-react";
-import { AdminSidebar } from "@/components/AdminSidebar";
+import { AdminDashboardShell } from "@/components/AdminDashboardShell";
 
 export default function DashboardPage() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
   const stats = [
     { label: "Occupancy Rate", value: "92%", sub: "184 of 200 units occupied" },
     { label: "Total Properties", value: "25", sub: "22 active - 3 vacant" },
@@ -15,19 +11,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-transparent px-3 py-4 sm:px-6 sm:py-6">
-      <main className="mx-auto w-full max-w-7xl">
-        <button
-          type="button"
-          onClick={() => setIsSidebarOpen(true)}
-          className="mb-3 inline-flex items-center gap-2 rounded-xl border border-emerald-700/60 bg-emerald-900/40 px-3 py-2 text-sm text-emerald-100 lg:hidden"
-        >
-          <Menu size={16} />
-          Menu
-        </button>
-
-        <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-        <section className="space-y-4 lg:ml-[17.5rem]">
+    <AdminDashboardShell>
           <article className="rounded-2xl border border-slate-800 bg-black/80 p-4 shadow-xl sm:p-6">
             <h2 className="text-xl font-semibold text-slate-100 sm:text-2xl">Welcome to Dashboard</h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-300">
@@ -78,8 +62,6 @@ export default function DashboardPage() {
               </div>
             </article>
           </div>
-        </section>
-      </main>
-    </div>
+    </AdminDashboardShell>
   );
 }
