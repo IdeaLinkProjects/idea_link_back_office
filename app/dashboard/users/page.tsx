@@ -59,7 +59,7 @@ export default function UsersPage() {
                         <th className="px-4 py-3 font-medium">Verification</th>
                         <th className="px-4 py-3 font-medium">KYC</th>
                         <th className="px-4 py-3 font-medium">Profile</th>
-                        <th className="px-4 py-3 text-right font-medium">Action</th>
+          
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800 text-sm text-slate-200">
@@ -158,23 +158,7 @@ export default function UsersPage() {
                               {user.isProfileComplete ? "Complete" : "Incomplete"}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <span className="text-xs text-slate-400">ID: {user.id}</span>
-                              <button
-                                type="button"
-                                disabled={isUpdatingStatus || typeof user.active !== "boolean"}
-                                onClick={() => handleToggleStatus(user.id, user.active)}
-                                className="rounded-lg border border-emerald-700/60 bg-emerald-900/40 px-3 py-1.5 text-xs font-medium text-emerald-100 transition hover:bg-emerald-800/70 disabled:cursor-not-allowed disabled:opacity-50"
-                              >
-                                {typeof user.active === "boolean"
-                                  ? user.active
-                                    ? "Deactivate"
-                                    : "Activate"
-                                  : "No status"}
-                              </button>
-                            </div>
-                          </td>
+                      
                         </tr>
                       ))}
                     </tbody>
