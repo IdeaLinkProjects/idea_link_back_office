@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Landmark,
   LayoutDashboard,
   LogOut,
   Megaphone,
@@ -18,6 +19,7 @@ const menuItems = [
   { label: "Campaigns", icon: Megaphone, href: "/dashboard/campaigns" },
   { label: "KYC", icon: ShieldCheck, href: "/dashboard/kyc" },
   { label: "Users", icon: Users, href: "/dashboard/users" },
+  { label: "Bank Account", icon: Landmark, href: "/dashboard/bank-accounts" },
   { label: "Admins", icon: UserCog, href: "/dashboard/admins" },
 ];
 

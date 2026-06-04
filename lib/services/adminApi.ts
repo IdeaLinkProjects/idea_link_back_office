@@ -200,6 +200,18 @@ export type AcceptAdminInvitationRequest = {
   confirmPassword: string;
 };
 
+export type UnverifiedBankAccount = {
+  id: number;
+  companyId: number;
+  companyName: string;
+  founderEmail: string;
+  accountHolderName: string;
+  bankCode: string;
+  maskedAccountNumber: string;
+  submittedAt: string;
+  verified: boolean;
+};
+
 export const adminApi = createApi({
   reducerPath: "adminApi",
   baseQuery: fetchBaseQuery({
@@ -323,6 +335,22 @@ export const adminApi = createApi({
         body,
       }),
     }),
+    getUnverifiedBankAccounts: builder.query<
+      PaginatedResponse<UnverifiedBankAccount>,
+      PaginationRequest
+    >({
+      query: ({ page, size }) => ({
+        url: "/admin/bank-accounts/unverified",
+        method: "GET",
+        params: { page, size },
+      }),
+    }),
+    verifyBankAccount: builder.mutation<CampaignActionResponse, number>({
+      query: (bankAccountId) => ({
+        url: `/admin/bank-accounts/${bankAccountId}/verify`,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -343,4 +371,6 @@ export const {
   useSendAdminInvitationMutation,
   useRevokeAdminInvitationMutation,
   useAcceptAdminInvitationMutation,
+  useGetUnverifiedBankAccountsQuery,
+  useVerifyBankAccountMutation,
 } = adminApi;
