@@ -244,6 +244,13 @@ export const adminApi = createApi({
         params: { page, size },
       }),
     }),
+    getCampaignsReadyForPayout: builder.query<PaginatedResponse<Campaign>, PaginationRequest>({
+      query: ({ page, size }) => ({
+        url: "/admin/campaigns/ready-for-payout",
+        method: "GET",
+        params: { page, size },
+      }),
+    }),
     getUsers: builder.query<PaginatedResponse<AdminUser>, PaginationRequest>({
       query: ({ page, size }) => ({
         url: "/admin/users/all",
@@ -358,6 +365,7 @@ export const {
   useGetDashboardStatsQuery,
   useLoginMutation,
   useGetCampaignsQuery,
+  useGetCampaignsReadyForPayoutQuery,
   useGetUsersQuery,
   useUpdateUserStatusMutation,
   useGetCampaignByIdQuery,
