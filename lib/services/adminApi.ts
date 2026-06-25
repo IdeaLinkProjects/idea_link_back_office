@@ -12,11 +12,82 @@ const getAccessTokenFromCookie = () => {
   return accessTokenCookie?.split("=")[1] ?? "";
 };
 
-export type DashboardStats = {
-  users: number;
-  projects: number;
-  tasksOpen: number;
-  completionRate: number;
+export type DashboardUsersSummary = {
+  total: number;
+  investors: number;
+  innovators: number;
+  admins: number;
+  activeUsers: number;
+  inactiveUsers: number;
+  verifiedKyc: number;
+  pendingKyc: number;
+};
+
+export type DashboardCampaignsSummary = {
+  totalCampaigns: number;
+  successfulCampaigns: number;
+  successRate: number;
+  totalRaised: number;
+};
+
+export type DashboardPlatformSummary = {
+  totalCompanies: number;
+  unverifiedCompanies: number;
+  totalCompletedInvestments: number;
+  totalInvestmentVolume: number;
+};
+
+export type DashboardQueuesSummary = {
+  pendingCampaignReviews: number;
+  pendingKycDocuments: number;
+  unverifiedCompanies: number;
+  readyForPayout: number;
+};
+
+export type DashboardPendingCampaignPreview = {
+  id: number;
+  title: string;
+  companyName: string;
+  submittedAt: string;
+  fundingGoal: number;
+};
+
+export type DashboardPendingKycPreview = {
+  kycId: number;
+  userId: number;
+  userEmail: string;
+  documentType: string;
+  submittedAt: string;
+};
+
+export type DashboardUnverifiedCompanyPreview = {
+  id: number;
+  name: string;
+  industry: string;
+  createdAt: string;
+};
+
+export type DashboardReadyForPayoutPreview = {
+  campaignId: number;
+  title: string;
+  companyName: string;
+  amountRaised: number;
+  fundedAt: string;
+};
+
+export type DashboardPreviews = {
+  pendingCampaigns: DashboardPendingCampaignPreview[];
+  pendingKyc: DashboardPendingKycPreview[];
+  unverifiedCompanies: DashboardUnverifiedCompanyPreview[];
+  readyForPayout: DashboardReadyForPayoutPreview[];
+};
+
+export type DashboardSummary = {
+  users: DashboardUsersSummary;
+  campaigns: DashboardCampaignsSummary;
+  platform: DashboardPlatformSummary;
+  queues: DashboardQueuesSummary;
+  previews: DashboardPreviews;
 };
 
 export type LoginRequest = {
@@ -227,8 +298,8 @@ export const adminApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    getDashboardStats: builder.query<DashboardStats, void>({
-      query: () => "/dashboard/stats",
+    getDashboardSummary: builder.query<DashboardSummary, void>({
+      query: () => "/admin/dashboard/summary",
     }),
     login: builder.mutation<LoginResponse, LoginRequest>({
       query: (body) => ({
@@ -362,7 +433,7 @@ export const adminApi = createApi({
 });
 
 export const {
-  useGetDashboardStatsQuery,
+  useGetDashboardSummaryQuery,
   useLoginMutation,
   useGetCampaignsQuery,
   useGetCampaignsReadyForPayoutQuery,

@@ -42,10 +42,9 @@ export default function CampaignDetailPage() {
   const [verifyCampaignDocument] = useVerifyCampaignDocumentMutation();
 
   const isPendingReview = data?.status === CAMPAIGN_STATUS.PENDING_REVIEW;
+  const isReadyForPayout = data?.status === CAMPAIGN_STATUS.READY_FOR_PAYOUT;
   const isActionLoading = isApproving || isRejecting || isReleasing;
   const documents = data?.documents ?? [];
-  const hasReachedFundingGoal = (data?.amountRaised ?? 0) >= (data?.fundingGoal ?? Number.POSITIVE_INFINITY);
-  const canReleaseEscrow = data?.status === CAMPAIGN_STATUS.ACTIVE && hasReachedFundingGoal;
   const allDocumentsVerified =
     documents.length > 0 &&
     documents.every((doc) => {
@@ -312,33 +311,31 @@ export default function CampaignDetailPage() {
                 </article>
               ) : null}
 
-              {data.status === CAMPAIGN_STATUS.ACTIVE ? (
-                <article className="rounded-2xl border border-slate-800 bg-black/80 p-5 shadow-xl">
-                  <h3 className="text-lg font-semibold text-slate-100">Escrow Release</h3>
+              {isReadyForPayout ? (
+                <article className="rounded-2xl border border-amber-700/40 bg-black/80 p-5 shadow-xl">
+                  <h3 className="text-lg font-semibold text-slate-100">Release Escrow Funds</h3>
                   <p className="mt-1 text-sm text-slate-300">
-                    Once the campaign reaches its required investment, admin can release escrow funds after the
-                    cooling-off period.
+                    This campaign has passed the cooling-off period and is ready for payout. Confirm to release
+                    escrow funds to the company.
                   </p>
                   <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/70 p-4">
                     <p className="text-sm text-slate-200">
-                      Funding Goal: <span className="font-semibold text-slate-100">{currency.format(data.fundingGoal)}</span>
+                      Funding Goal:{" "}
+                      <span className="font-semibold text-slate-100">{currency.format(data.fundingGoal)}</span>
                     </p>
                     <p className="mt-1 text-sm text-slate-200">
                       Amount Raised:{" "}
                       <span className="font-semibold text-slate-100">{currency.format(data.amountRaised)}</span>
                     </p>
-                    <p className={`mt-2 text-xs ${canReleaseEscrow ? "text-emerald-300" : "text-amber-300"}`}>
-                      {canReleaseEscrow
-                        ? "Campaign is eligible for escrow release."
-                        : "Campaign has not reached required investment yet."}
+                    <p className="mt-2 text-xs text-emerald-300">
+                      Campaign is eligible for escrow release.
                     </p>
                   </div>
                   <div className="mt-4">
                     <button
                       type="button"
                       onClick={() => setPendingAction("release")}
-                      disabled={!canReleaseEscrow}
-                      className="rounded-lg border border-emerald-700/60 bg-emerald-900/40 px-4 py-2 text-sm font-medium text-emerald-100 transition hover:bg-emerald-800/70 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg border border-emerald-700/60 bg-emerald-900/40 px-4 py-2 text-sm font-medium text-emerald-100 transition hover:bg-emerald-800/70"
                     >
                       Release Funds
                     </button>
@@ -363,7 +360,7 @@ export default function CampaignDetailPage() {
             ? "This action will approve the campaign and make it ready for the next stage."
             : pendingAction === "reject"
               ? "This action will reject the campaign. Please confirm you want to continue."
-              : "This action will release escrow funds to the campaign after review."
+              : "This will release escrow funds to the company. This action cannot be undone."
         }
         confirmText={
           pendingAction === "approve" ? "Approve" : pendingAction === "reject" ? "Reject" : "Release Funds"
