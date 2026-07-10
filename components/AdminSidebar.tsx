@@ -1,20 +1,37 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
+  ArrowLeftRight,
+  ChevronDown,
   Landmark,
   LayoutDashboard,
   LogOut,
   Megaphone,
+  Scale,
   ShieldCheck,
   UserCog,
   Users,
+  Wallet,
   X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AppLogo } from "@/components/AppLogo";
 
-const menuItems = [
+type MenuLink = {
+  label: string;
+  href: string;
+  icon: typeof LayoutDashboard;
+};
+
+type MenuSection = {
+  label: string;
+  icon: typeof LayoutDashboard;
+  children: MenuLink[];
+};
+
+const menuItems: MenuLink[] = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { label: "Campaigns", icon: Megaphone, href: "/dashboard/campaigns" },
   { label: "KYC", icon: ShieldCheck, href: "/dashboard/kyc" },
@@ -23,14 +40,49 @@ const menuItems = [
   { label: "Admins", icon: UserCog, href: "/dashboard/admins" },
 ];
 
+const financeSection: MenuSection = {
+  label: "Finance",
+  icon: Scale,
+  children: [
+    { label: "Overview", icon: LayoutDashboard, href: "/dashboard/finance" },
+    { label: "Wallets", icon: Wallet, href: "/dashboard/finance/wallets" },
+    { label: "Payments", icon: ArrowLeftRight, href: "/dashboard/finance/payments" },
+    { label: "Reconciliation", icon: Scale, href: "/dashboard/finance/reconciliation" },
+  ],
+};
+
 type AdminSidebarProps = {
   isOpen: boolean;
   onClose: () => void;
 };
 
+function isActivePath(pathname: string, href: string) {
+  if (href === "/dashboard") {
+    return pathname === href;
+  }
+
+  if (href === "/dashboard/finance") {
+    return pathname === href;
+  }
+
+  if (href === "/dashboard/finance/wallets") {
+    return pathname === href || pathname.startsWith(`${href}/`);
+  }
+
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const financeActive = pathname.startsWith("/dashboard/finance");
+  const [financeOpen, setFinanceOpen] = useState(financeActive);
+
+  useEffect(() => {
+    if (financeActive) {
+      setFinanceOpen(true);
+    }
+  }, [financeActive]);
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
@@ -70,8 +122,72 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
         </div>
 
         <nav className="mt-6 space-y-1.5">
-          {menuItems.map(({ label, icon: Icon, href }) => {
-            const active = href !== "#" && pathname === href;
+          {menuItems.slice(0, 4).map(({ label, icon: Icon, href }) => {
+            const active = isActivePath(pathname, href);
+
+            return (
+              <Link
+                key={label}
+                href={href}
+                onClick={onClose}
+                className={
+                  active
+                    ? "flex w-full items-center gap-3 rounded-xl bg-emerald-700/80 px-3 py-2.5 text-left text-sm font-medium text-emerald-50 shadow-sm transition-colors hover:bg-emerald-600"
+                    : "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-emerald-200/90 transition-colors hover:bg-emerald-900/60 hover:text-emerald-50"
+                }
+              >
+                <Icon size={16} />
+                {label}
+              </Link>
+            );
+          })}
+
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => setFinanceOpen((open) => !open)}
+              className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${
+                financeActive
+                  ? "bg-emerald-900/50 text-emerald-50"
+                  : "text-emerald-200/90 hover:bg-emerald-900/60 hover:text-emerald-50"
+              }`}
+              aria-expanded={financeOpen}
+            >
+              <financeSection.icon size={16} />
+              <span className="flex-1 font-medium">{financeSection.label}</span>
+              <ChevronDown
+                size={14}
+                className={`transition-transform ${financeOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            {financeOpen ? (
+              <div className="mt-1 space-y-1 border-l border-emerald-900/70 ml-4 pl-2">
+                {financeSection.children.map(({ label, icon: Icon, href }) => {
+                  const active = isActivePath(pathname, href);
+
+                  return (
+                    <Link
+                      key={label}
+                      href={href}
+                      onClick={onClose}
+                      className={
+                        active
+                          ? "flex w-full items-center gap-2.5 rounded-lg bg-emerald-700/80 px-2.5 py-2 text-left text-sm font-medium text-emerald-50 transition-colors hover:bg-emerald-600"
+                          : "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm text-emerald-200/80 transition-colors hover:bg-emerald-900/60 hover:text-emerald-50"
+                      }
+                    >
+                      <Icon size={14} />
+                      {label}
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : null}
+          </div>
+
+          {menuItems.slice(4).map(({ label, icon: Icon, href }) => {
+            const active = isActivePath(pathname, href);
 
             return (
               <Link

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Building2, Landmark } from "lucide-react";
 import { AdminDashboardShell } from "@/components/AdminDashboardShell";
 import { ConfirmModal } from "@/components/ConfirmModal";
@@ -46,10 +47,20 @@ export default function BankAccountsPage() {
     <>
     <AdminDashboardShell>
       <article className="rounded-2xl border border-slate-800 bg-black/80 p-5 shadow-xl">
-        <h2 className="text-2xl font-semibold text-slate-100">Bank Account</h2>
-        <p className="mt-1 text-sm text-slate-300">
-          Review company bank accounts pending admin verification and approval.
-        </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-2xl font-semibold text-slate-100">Bank Account</h2>
+            <p className="mt-1 text-sm text-slate-300">
+              Review company bank accounts pending admin verification and approval.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/finance"
+            className="inline-flex items-center gap-2 self-start rounded-lg border border-emerald-700/60 bg-emerald-900/40 px-3 py-2 text-xs font-medium text-emerald-100 transition hover:bg-emerald-800/70"
+          >
+            Finance overview
+          </Link>
+        </div>
       </article>
 
       {isLoading ? (

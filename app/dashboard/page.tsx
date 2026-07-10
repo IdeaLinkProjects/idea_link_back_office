@@ -3,15 +3,21 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import {
+  AlertTriangle,
   Banknote,
   Building2,
+  Landmark,
   Megaphone,
+  Scale,
   ShieldCheck,
   TrendingUp,
   Users,
 } from "lucide-react";
 import { AdminDashboardShell } from "@/components/AdminDashboardShell";
-import { useGetDashboardSummaryQuery } from "@/lib/services/adminApi";
+import {
+  useGetDashboardSummaryQuery,
+  useGetPlatformLedgerSummaryQuery,
+} from "@/lib/services/adminApi";
 
 const currency = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -32,6 +38,73 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
 
 export default function DashboardPage() {
   const { data, isLoading, isError } = useGetDashboardSummaryQuery();
+  const ledgerSummaryQuery = useGetPlatformLedgerSummaryQuery();
+  const ledgerSummary = ledgerSummaryQuery.data;
+
+  const financeAlerts = [
+    ...(ledgerSummary?.healthAlerts ?? []).slice(0, 3).map((alert) => ({
+      key: alert.code ?? alert.message,
+      message: alert.message,
+      count: alert.count,
+      href:
+        alert.ownerId && alert.walletType
+          ? `/dashboard/finance/wallets/${alert.ownerId}/${alert.walletType}`
+          : (alert.href ??
+            ((alert.code ?? "").toUpperCase().includes("BANK")
+              ? "/dashboard/bank-accounts"
+              : (alert.code ?? "").toUpperCase().includes("PAYMENT")
+                ? "/dashboard/finance/payments?missingLedgerOnly=true"
+                : "/dashboard/finance/reconciliation")),
+    })),
+    ...(typeof ledgerSummary?.mismatchedWallets === "number" &&
+    ledgerSummary.mismatchedWallets > 0 &&
+    !(ledgerSummary.healthAlerts ?? []).some((alert) =>
+      (alert.code ?? alert.message).toUpperCase().includes("MISMATCH"),
+    )
+      ? [
+          {
+            key: "mismatched-wallets",
+            message: `${ledgerSummary.mismatchedWallets} wallets out of balance with ledger`,
+            count: ledgerSummary.mismatchedWallets,
+            href: "/dashboard/finance/reconciliation",
+          },
+        ]
+      : []),
+    ...(typeof ledgerSummary?.missingPaymentLinks === "number" &&
+    ledgerSummary.missingPaymentLinks > 0 &&
+    !(ledgerSummary.healthAlerts ?? []).some((alert) =>
+      (alert.code ?? alert.message).toUpperCase().includes("PAYMENT"),
+    )
+      ? [
+          {
+            key: "missing-payment-links",
+            message: `${ledgerSummary.missingPaymentLinks} payments missing ledger links`,
+            count: ledgerSummary.missingPaymentLinks,
+            href: "/dashboard/finance/payments?missingLedgerOnly=true",
+          },
+        ]
+      : []),
+    ...(typeof ledgerSummary?.unverifiedBankAccounts === "number" &&
+    ledgerSummary.unverifiedBankAccounts > 0
+      ? [
+          {
+            key: "unverified-bank-accounts",
+            message: `${ledgerSummary.unverifiedBankAccounts} bank accounts awaiting verification`,
+            count: ledgerSummary.unverifiedBankAccounts,
+            href: "/dashboard/bank-accounts",
+          },
+        ]
+      : typeof data?.queues.unverifiedCompanies === "number" && data.queues.unverifiedCompanies > 0
+        ? [
+            {
+              key: "unverified-bank-accounts-fallback",
+              message: `${data.queues.unverifiedCompanies} bank accounts awaiting verification`,
+              count: data.queues.unverifiedCompanies,
+              href: "/dashboard/bank-accounts",
+            },
+          ]
+        : []),
+  ].slice(0, 4);
 
   const kpiCards = data
     ? [
@@ -79,10 +152,10 @@ export default function DashboardPage() {
           tone: "amber" as const,
         },
         {
-          label: "Unverified companies",
+          label: "Unverified bank accounts",
           count: data.queues.unverifiedCompanies,
           href: "/dashboard/bank-accounts",
-          icon: Building2,
+          icon: Landmark,
           tone: "rose" as const,
         },
         {
@@ -91,6 +164,13 @@ export default function DashboardPage() {
           href: "/dashboard/campaigns",
           icon: Banknote,
           tone: "sky" as const,
+        },
+        {
+          label: "Finance reconciliation",
+          count: ledgerSummary?.mismatchedWallets ?? 0,
+          href: "/dashboard/finance/reconciliation",
+          icon: Scale,
+          tone: "amber" as const,
         },
       ]
     : [];
@@ -110,6 +190,40 @@ export default function DashboardPage() {
           Platform overview with KPIs, review queues, and the latest items needing attention.
         </p>
       </article>
+
+      {financeAlerts.length > 0 ? (
+        <article className="rounded-2xl border border-rose-700/40 bg-rose-950/25 p-4 shadow-xl">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <AlertTriangle size={16} className="text-rose-300" />
+              <h3 className="text-sm font-semibold text-rose-100">Finance alerts</h3>
+            </div>
+            <Link
+              href="/dashboard/finance"
+              className="text-xs font-medium text-emerald-300 transition hover:text-emerald-200"
+            >
+              Open finance overview
+            </Link>
+          </div>
+          <ul className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+            {financeAlerts.map((alert) => (
+              <li key={alert.key}>
+                <Link
+                  href={alert.href}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-rose-800/40 bg-black/30 px-3 py-2.5 text-sm text-rose-100 transition hover:bg-rose-950/50"
+                >
+                  <span>{alert.message}</span>
+                  {typeof alert.count === "number" ? (
+                    <span className="shrink-0 rounded-full border border-rose-700/60 bg-rose-900/40 px-2 py-0.5 text-xs text-rose-200">
+                      {alert.count}
+                    </span>
+                  ) : null}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </article>
+      ) : null}
 
       {isLoading ? (
         <div className="rounded-2xl border border-slate-800 bg-black/80 p-6 text-sm text-slate-300">
@@ -229,8 +343,8 @@ export default function DashboardPage() {
             </PreviewSection>
 
             <PreviewSection
-              title="Unverified Companies"
-              emptyMessage="No unverified companies."
+              title="Unverified Bank Accounts"
+              emptyMessage="No unverified bank accounts."
               viewAllHref="/dashboard/bank-accounts"
               isEmpty={data.previews.unverifiedCompanies.length === 0}
             >

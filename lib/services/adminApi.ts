@@ -283,6 +283,149 @@ export type UnverifiedBankAccount = {
   verified: boolean;
 };
 
+export type WalletType = "USER" | "COMPANY" | "ESCROW" | "PLATFORM" | "CAMPAIGN" | string;
+
+export type LedgerHealthAlert = {
+  code?: string;
+  severity: "INFO" | "WARNING" | "CRITICAL" | string;
+  message: string;
+  count?: number;
+  href?: string;
+  ownerId?: number;
+  walletType?: WalletType;
+};
+
+export type WalletBreakdownItem = {
+  type: WalletType;
+  label?: string;
+  count: number;
+  balance: number;
+  currency?: string;
+};
+
+export type PlatformLedgerSummary = {
+  totalLiquidity: number;
+  currency?: string;
+  walletBreakdown?: WalletBreakdownItem[];
+  healthAlerts?: LedgerHealthAlert[];
+  mismatchedWallets?: number;
+  missingPaymentLinks?: number;
+  unverifiedBankAccounts?: number;
+};
+
+export type DailyMoneyMovement = {
+  label: string;
+  type?: string;
+  direction: "IN" | "OUT" | string;
+  amount: number;
+  currency?: string;
+};
+
+export type DailyLedgerSummary = {
+  date: string;
+  totalIn: number;
+  totalOut: number;
+  currency?: string;
+  movements?: DailyMoneyMovement[];
+};
+
+export type AdminWallet = {
+  walletId: number;
+  ownerId: number;
+  ownerType: WalletType;
+  ownerName: string | null;
+  ownerLabel: string;
+  availableBalance: number;
+  currency: string;
+  isActive: boolean;
+  updatedAt: string;
+};
+
+export type LedgerEntry = {
+  id: number | string;
+  timestamp: string;
+  entryType: "CREDIT" | "DEBIT" | string;
+  amount: number;
+  currency?: string;
+  referenceType?: string;
+  referenceId?: number | string;
+  referenceLabel?: string;
+  balanceAfter: number;
+  description?: string;
+};
+
+export type WalletDetail = {
+  ownerId: number;
+  ownerName: string;
+  ownerEmail?: string;
+  type: WalletType;
+  balance: number;
+  currency?: string;
+  status?: string;
+  entries: LedgerEntry[];
+  totalElements?: number;
+  totalPages?: number;
+  number?: number;
+  size?: number;
+};
+
+export type WalletReconcileResult = {
+  ownerId: number;
+  type: WalletType;
+  ownerName?: string;
+  ownerEmail?: string;
+  matched: boolean;
+  walletBalance: number;
+  ledgerBalance: number;
+  difference: number;
+  currency?: string;
+  message?: string;
+};
+
+export type ReconcileAllResponse = {
+  totalChecked: number;
+  matchedCount: number;
+  mismatchedCount: number;
+  currency?: string;
+  results?: WalletReconcileResult[];
+};
+
+export type PaymentRecord = {
+  id: number;
+  amount: number;
+  currency: string;
+  createdAt: string;
+  paidAt: string | null;
+  paymentDirection: "IN" | "OUT" | string;
+  paymentReference: string;
+  paymentStatus: "SUCCESS" | "PENDING" | "FAILED" | "PROCESSING" | string;
+  paymentType: "TOPUP" | "WITHDRAWAL" | string;
+  transactionId: string | null;
+  userEmail: string;
+  userId: number;
+  walletId: number | null;
+  ledgerEntryId: number | null;
+};
+
+export type PaymentsRequest = PaginationRequest & {
+  status?: string;
+  type?: string;
+  direction?: string;
+  missingLedgerOnly?: boolean;
+};
+
+export type WalletsRequest = PaginationRequest & {
+  search?: string;
+  type?: string;
+};
+
+export type WalletDetailRequest = {
+  ownerId: number;
+  type: string;
+  page?: number;
+  size?: number;
+};
+
 export const adminApi = createApi({
   reducerPath: "adminApi",
   baseQuery: fetchBaseQuery({
@@ -429,6 +572,54 @@ export const adminApi = createApi({
         method: "POST",
       }),
     }),
+    getPlatformLedgerSummary: builder.query<PlatformLedgerSummary, void>({
+      query: () => "/admin/ledger/platform-summary",
+    }),
+    getDailyLedgerSummary: builder.query<DailyLedgerSummary, { date: string }>({
+      query: ({ date }) => ({
+        url: "/admin/ledger/daily-summary",
+        params: { date },
+      }),
+    }),
+    getLedgerWallets: builder.query<PaginatedResponse<AdminWallet>, WalletsRequest>({
+      query: ({ page, size, search, type }) => ({
+        url: "/admin/ledger/wallets",
+        params: {
+          page,
+          size,
+          ...(search ? { search } : {}),
+          ...(type ? { type } : {}),
+        },
+      }),
+    }),
+    getLedgerWallet: builder.query<WalletDetail, WalletDetailRequest>({
+      query: ({ ownerId, type, page, size }) => ({
+        url: `/admin/ledger/wallet/${ownerId}/${type}`,
+        params: {
+          ...(typeof page === "number" ? { page } : {}),
+          ...(typeof size === "number" ? { size } : {}),
+        },
+      }),
+    }),
+    getWalletReconcile: builder.query<WalletReconcileResult, { ownerId: number; type: string }>({
+      query: ({ ownerId, type }) => `/admin/ledger/reconcile/${ownerId}/${type}`,
+    }),
+    getReconcileAll: builder.query<ReconcileAllResponse, void>({
+      query: () => "/admin/ledger/reconcile-all",
+    }),
+    getLedgerPayments: builder.query<PaginatedResponse<PaymentRecord>, PaymentsRequest>({
+      query: ({ page, size, status, type, direction, missingLedgerOnly }) => ({
+        url: "/admin/ledger/payments",
+        params: {
+          page,
+          size,
+          ...(status ? { status } : {}),
+          ...(type ? { type } : {}),
+          ...(direction ? { direction } : {}),
+          ...(missingLedgerOnly ? { missingLedgerOnly: true } : {}),
+        },
+      }),
+    }),
   }),
 });
 
@@ -452,4 +643,11 @@ export const {
   useAcceptAdminInvitationMutation,
   useGetUnverifiedBankAccountsQuery,
   useVerifyBankAccountMutation,
+  useGetPlatformLedgerSummaryQuery,
+  useGetDailyLedgerSummaryQuery,
+  useGetLedgerWalletsQuery,
+  useGetLedgerWalletQuery,
+  useGetWalletReconcileQuery,
+  useGetReconcileAllQuery,
+  useGetLedgerPaymentsQuery,
 } = adminApi;
